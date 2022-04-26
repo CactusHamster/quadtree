@@ -1,12 +1,71 @@
 <head>
     <meta charset="UTF-8">
     <title>quadtree</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu&amp;display=swap" rel="stylesheet">
 </head>
-<body>
-    <canvas width="0" height="0" id="quadctx"></canvas>
-    <canvas width="0" height="0" id="outputctx"></canvas>
+<style>
+    #ctrlHolder {
+        white-space: nowrap;
+        height: 100%;
+        position: absolute;
+        right: 50%;
+        top: 50%;
+        transform: translate(50%, -50%); 
+        background-color: transparent;
+    }
+    #ctrlHolder > label {
+        font-family: "Ubuntu";
+        display: inline-block;
+        text-align: center;
+        color: white;
+        font-size: 18px;
+    }
+    /*input:not([type])*/
+    #ctrlHolder > label > input[type=number] {
+        height: 80%;
+        width: 40%;
+        transform: translate(0px, -20%);
+        text-align: center;
+        font-size: 18px;
+    }
+
+    #canvasBox {
+        height: 90%;
+        width: 100%;
+        position: absolute;
+        top: 10%;
+        left: 0%;
+    }
+</style>
+<body style="margin: 0px;">
+    <div style="position: absolute; top: 0px; left: 0px; background: darkslategrey; height: 10%; width: 100%;">
+        <div id="ctrlHolder">
+            <label>
+                <input type="number">
+            </label>
+            <label>
+                Max. Color Distance
+                <br>
+                <input type="range">
+            </label>
+            <label>
+                Max. Recursions
+                <br>
+                <input type="range" min="1" step="1" max="255">
+            </label>
+            <label>
+                <input type="number" max="255" min="1">
+            </label>
+        </div>
+    </div>
     <br>
-    <input type="file" accept="image/*" id="imageInput">
+
+    <div id="canvasBox">
+        <canvas width="0" height="0" id="quadctx"></canvas>
+        <canvas width="0" height="0" id="outputctx"></canvas>
+        <br>
+        <input type="file" accept="image/*" id="imageInput">
+    </div>
 </body>
 <script src="index.js"></script>
 <script>
@@ -34,7 +93,7 @@
             outctx.beginPath();
             //outctx.strokeStyle = `rgb(${array.color.map(c => 255 - c).join(",")})`;
             outctx.strokeStyle = "black"
-            outctx.lineWidth = "1"; outctx.rect(...array.start, ...array.stop.map((a, i) => a - array.start[i]));
+            outctx.lineWidth = "0.1"; outctx.rect(...array.start, ...array.stop.map((a, i) => a - array.start[i]));
             outctx.stroke()
         }
     }
@@ -47,7 +106,7 @@
         outcanvas.width = canvas.width
         outcanvas.height = canvas.height
         ctx.drawImage(this, 0, 0, canvas.width, canvas.height)
-        let tree = quadTree(ctx, 10, 50);
+        let tree = quadTree(ctx, 12, 50);
         renderTree(tree)
     }
     function handleImage (e) {
