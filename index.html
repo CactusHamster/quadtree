@@ -1,0 +1,70 @@
+<head>
+    <meta charset="UTF-8">
+    <title>quadtree</title>
+</head>
+<body>
+    <canvas width="0" height="0" id="quadctx"></canvas>
+    <canvas width="0" height="0" id="outputctx"></canvas>
+    <br>
+    <input type="file" accept="image/*" id="imageInput">
+</body>
+<script src="index.js"></script>
+<script>
+    const canvas = document.getElementById("quadctx")
+    const ctx = canvas.getContext("2d")
+    const outcanvas = document.getElementById("outputctx");
+    const outctx = outcanvas.getContext("2d");
+    let img;
+    /*
+    for (let x = 0; x < canvas.width; x++) {
+        for (let y = 0; y < canvas.height; y++) {
+            ctx.fillStyle = `rgb(0, 0, ${Math.sin(x / 12) * 127.5 + 127.5})`
+            ctx.fillRect(x, y, 1, 1)
+        }
+    }
+    */
+    
+    function renderTree (array) {
+        if (array instanceof Array){
+            array.forEach(elem => renderTree(elem))
+        }
+        else {
+            outctx.fillStyle = `rgb(${array.color.join(",")})`
+            outctx.fillRect(...array.start, ...array.stop.map((a, i) => a - array.start[i]))
+            outctx.beginPath();
+            //outctx.strokeStyle = `rgb(${array.color.map(c => 255 - c).join(",")})`;
+            outctx.strokeStyle = "black"
+            outctx.lineWidth = "1"; outctx.rect(...array.start, ...array.stop.map((a, i) => a - array.start[i]));
+            outctx.stroke()
+        }
+    }
+    
+
+    let imageInput = document.getElementById('imageInput')
+    function handleImageLoad (e) {
+        canvas.width = this.width
+        canvas.height = this.height
+        outcanvas.width = canvas.width
+        outcanvas.height = canvas.height
+        ctx.drawImage(this, 0, 0, canvas.width, canvas.height)
+        let tree = quadTree(ctx, 10, 50);
+        renderTree(tree)
+    }
+    function handleImage (e) {
+        let file = e.target.files[0]
+        if (!file) return;
+        let rd = new FileReader()
+        rd.readAsDataURL(file);
+        rd.addEventListener('load', function() {
+            img = new Image()
+            img.src = this.result
+            img.onerror = (e) => (alert("Error loading image."), console.error(e))
+            img.onload = handleImageLoad
+        })
+    }
+
+    imageInput.addEventListener('change', handleImage)
+
+
+
+</script>
