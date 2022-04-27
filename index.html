@@ -28,12 +28,24 @@
         text-align: center;
         font-size: 18px;
     }
-
-    #canvasBox {
-        height: 90%;
+    #bigButton {
+        font-family: "Ubuntu";
         width: 100%;
+        margin: 0px;
+        border: 0px;
         position: absolute;
         top: 10%;
+        left: 0px;
+        height: 7%;
+        font-size: 28px;
+        border-bottom: dashed 2px darkslategrey;
+    }
+
+    #canvasBox {
+        height: 80%;
+        width: 100%;
+        position: absolute;
+        top: 20%;
         left: 0%;
     }
 </style>
@@ -41,30 +53,29 @@
     <div style="position: absolute; top: 0px; left: 0px; background: darkslategrey; height: 10%; width: 100%;">
         <div id="ctrlHolder">
             <label>
-                <input type="number">
+                <input type="number" min="0" max="255" id="distBox" oninput="distRange.value = this.value" value="50">
             </label>
             <label>
                 Max. Color Distance
                 <br>
-                <input type="range">
+                <input type="range" min="0" max="255" id="distRange" value="50" oninput="distBox.value = this.value" onload="distBox.value = this.value">
             </label>
             <label>
                 Max. Recursions
                 <br>
-                <input type="range" min="1" step="1" max="255">
+                <input type="range" value="12" min="0" id="recursionsRange" oninput="recursionsBox.value = this.value" onload="recursionsBox.value = this.value" max="15">
             </label>
             <label>
-                <input type="number" max="255" min="1">
+                <input type="number" value="12" oninput="recursionsRange.value = this.value" id="recursionsBox" min="1" max="15">
             </label>
         </div>
     </div>
-    <br>
-
+    <button id="bigButton">Render</button>
     <div id="canvasBox">
+        <input type="file" accept="image/*" id="imageInput">
+        <br>
         <canvas width="0" height="0" id="quadctx"></canvas>
         <canvas width="0" height="0" id="outputctx"></canvas>
-        <br>
-        <input type="file" accept="image/*" id="imageInput">
     </div>
 </body>
 <script src="index.js"></script>
@@ -100,15 +111,22 @@
     
 
     let imageInput = document.getElementById('imageInput')
-    function handleImageLoad (e) {
-        canvas.width = this.width
-        canvas.height = this.height
+    function handleImageLoad (image) {
+        if (!image) return alert("No image specified.");
+        canvas.width = image.width
+        canvas.height = image.height
         outcanvas.width = canvas.width
         outcanvas.height = canvas.height
-        ctx.drawImage(this, 0, 0, canvas.width, canvas.height)
-        let tree = quadTree(ctx, 12, 50);
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height)
+        let tree = quadTree(
+            ctx,
+            document.getElementById("recursionsBox").value,
+            document.getElementById("distBox").value
+        );
         renderTree(tree)
     }
+    document.getElementById("bigButton").onclick = () => handleImageLoad(img)
+    
     function handleImage (e) {
         let file = e.target.files[0]
         if (!file) return;
@@ -118,7 +136,7 @@
             img = new Image()
             img.src = this.result
             img.onerror = (e) => (alert("Error loading image."), console.error(e))
-            img.onload = handleImageLoad
+            img.onload = function () { handleImageLoad(this) }
         })
     }
 
